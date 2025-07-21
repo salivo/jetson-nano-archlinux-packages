@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+build() {
+    add_file "/lib/firmware/tegra21x_xusb_firmware"
+}
+
+help() {
+    cat <<HELPEOF
+Adds NVIDIA Tegra 21x XUSB firmware to the initramfs.
+Required for USB controller initialization on boot.
+HELPEOF
+}
