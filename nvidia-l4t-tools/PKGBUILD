@@ -1,0 +1,36 @@
+# Maintainer: Andrii Salivon <andrijsalivon@plajta.eu>
+pkgname=nvidia-l4t-tools
+pkgver=32.7.6
+pkgrel=1
+pkgdesc="Tools for Jetson Nano"
+arch=('aarch64')
+url="https://repo.download.nvidia.com/jetson"
+license=('unknown')
+
+provides=("${pkgname}")
+
+sha256sums=('09652eeccdfe1829f78ac33401199ccd536507bbcca64eeb9bdbb958df2b5371')
+            
+source=("https://repo.download.nvidia.com/jetson/t210/pool/main/n/nvidia-l4t-tools/nvidia-l4t-tools_32.7.6-20241104234540_arm64.deb")
+
+prepare() {
+  cd "$srcdir"
+  for deb in "${srcdir}"/*.deb; do
+    ar x "$deb"
+    tar xf data.tar.*
+    rm data.tar.* control.tar.* debian-binary
+  done
+  rm usr/sbin/nv-update-extlinux # Idk what this doing internaly. I have diferent way to update kernel.
+}
+
+package() {
+  install -d "${pkgdir}/usr/bin/"
+  cp -a "${srcdir}"/usr/bin/* "${pkgdir}/usr/bin/"
+  cp -a "${srcdir}"/usr/sbin/* "${pkgdir}/usr/bin/"
+  
+  install -d "${pkgdir}/usr/share/doc/"
+  cp -a "${srcdir}"/usr/share/doc/* "${pkgdir}/usr/share/doc/"
+  
+  install -d "${pkgdir}/usr/share/nvpmodel_indicator/"
+  cp -a "${srcdir}"/usr/share/nvpmodel_indicator/* "${pkgdir}/usr/share/nvpmodel_indicator/"
+}
