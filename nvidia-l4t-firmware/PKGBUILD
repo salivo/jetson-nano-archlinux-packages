@@ -1,0 +1,30 @@
+# Maintainer: Andrii Salivon <andrijsalivon@plajta.eu>
+pkgname=linux-firmware-nvidia-l4t
+pkgver=32.7.6
+pkgrel=1
+pkgdesc="Firmware files for Linux - AArch64 Jetson Nano"
+arch=('aarch64')
+url="https://repo.download.nvidia.com/jetson"
+license=('unknown')
+
+provides=(linux-firmware-nvidia-l4t)
+
+sha256sums=('0404d7ddea8eda64c492f2c4e329c1f92a346d927eaa6926ec47233e70069eff')
+            
+source=("https://repo.download.nvidia.com/jetson/t210/pool/main/n/nvidia-l4t-firmware/nvidia-l4t-firmware_32.7.6-20241104234540_arm64.deb")
+
+prepare() {
+  cd "$srcdir"
+  for deb in "${srcdir}"/*.deb; do
+    ar x "$deb"
+    tar xf data.tar.*
+    rm data.tar.* control.tar.* debian-binary
+  done
+}
+
+package() {
+  install -d "${pkgdir}/usr/lib/firmware/"
+  cp -a "${srcdir}"/lib/firmware/* "${pkgdir}/usr/lib/firmware/"
+  install -d "${pkgdir}/usr/share/doc/"
+  cp -a "${srcdir}"/usr/share/doc/* "${pkgdir}/usr/share/doc/"
+}

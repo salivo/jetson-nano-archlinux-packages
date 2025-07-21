@@ -34,14 +34,7 @@ source=("https://repo.download.nvidia.com/jetson/t210/pool/main/n/nvidia-l4t-ker
         tegra21x_xusb_firmware
         tegra-xusb.mkinitcpio.hook
 )
-prepare(){
-  cd "$srcdir"
-  for deb in "${srcdir}"/nvidia-l4t-kernel*.deb; do
-    ar x "$deb"
-    tar xf data.tar.*
-  done
-  tar -xjf kernel_supplements.tbz2
-}
+
 prepare() {
   cd "$srcdir"
   local _tempdir=$(mktemp -d) 
