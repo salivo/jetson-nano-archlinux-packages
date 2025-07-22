@@ -10,8 +10,10 @@ license=('unknown')
 provides=("${pkgname}")
 
 sha256sums=('256b73c87f325ea94600a94f37a7e8fa1c69b8f7b299a616b3876a61738a3472')
-            
+
 source=("https://repo.download.nvidia.com/jetson/t210/pool/main/n/nvidia-l4t-init/nvidia-l4t-init_32.7.6-20241104234540_arm64.deb")
+
+depends=('bridge-utils')
 
 prepare() {
   cd "$srcdir"
@@ -20,13 +22,13 @@ prepare() {
     tar xf data.tar.*
     rm data.tar.* control.tar.* debian-binary
   done
-  rm -rf etc/xdg/ etc/lightdm/ etc/systemd/sleep.conf # some auto-starts bloat 
+  rm -rf etc/xdg/ etc/lightdm/ etc/systemd/sleep.conf # some auto-starts bloat
 }
 
 package() {
   install -d "${pkgdir}/opt/"
   cp -a "${srcdir}"/opt/* "${pkgdir}/opt/"
-  
+
   install -d "${pkgdir}/usr/bin"
   cp -a "${srcdir}"/usr/sbin/* "${pkgdir}"/usr/bin/
 

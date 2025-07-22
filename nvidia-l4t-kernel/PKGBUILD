@@ -8,7 +8,7 @@ arch=('aarch64')
 url="https://repo.download.nvidia.com/jetson"
 license=('unknown')
 
-depends=(coreutils kmod 
+depends=(coreutils kmod
          mkinitcpio
          linux-firmware)
 optdepends=(linux-firmware
@@ -20,36 +20,52 @@ replaces=(linux-aarch64)
 
 sha256sums=('e1fcd2b0a47580b290768889dc97668109d970b6d113a4f93e71fb23d47d3311'
             '2c345a1ee1598675cd8d4cb807d9097225be1e3da761a5f4ae3b5ba96f199095'
+            '298d1a481babdd84e5ae74a64576f3263e3cc08852f3fb39a479655a5b95ef86'
             '2246abe1e2a1169fa9f3fd71d2614299d0510664f855763ef9d17158128b168b'
             '6aae237483bc8161222116fb26b75a0b62b5cfab0fb0689cc08b0c0b40f6eda1'
-            'ac2055a6dcb6dbcab064131d262282e41a38dd44101c59ff06da6f2f82530930'
-            '941873a6a70993b5c40a608cedc4608c281458c11949092d4bce125b96a92025'
             '7ebc752b685c54ef57222f99411869fed19ff9a2b983f6d1e48b150d6c9fbe61')
-            
+
 source=("https://repo.download.nvidia.com/jetson/t210/pool/main/n/nvidia-l4t-kernel/nvidia-l4t-kernel_4.9.337-tegra-32.7.6-20241104234540_arm64.deb"
         "https://repo.download.nvidia.com/jetson/t210/pool/main/n/nvidia-l4t-kernel-dtbs/nvidia-l4t-kernel-dtbs_4.9.337-tegra-32.7.6-20241104234540_arm64.deb"
+        https://repo.download.nvidia.com/jetson/t210/pool/main/n/nvidia-l4t-xusb-firmware/nvidia-l4t-xusb-firmware_32.7.6-20241104234540_arm64.deb
         extlinux.conf
         "${pkgname}".preset
-        kernel_supplements.tbz2
-        tegra21x_xusb_firmware
         tegra-xusb.mkinitcpio.hook
 )
 
 prepare() {
   cd "$srcdir"
-  local _tempdir=$(mktemp -d) 
+  local _tempdir=$(mktemp -d)
   for deb in "${srcdir}"/*.deb; do
     ar x "$deb"
     tar xf data.tar.* -C "$_tempdir"
     rm data.tar.* control.tar.* debian-binary
   done
-  
+
   mv "$_tempdir"/boot/Image "${srcdir}/Image"
-  
+
   if [[ -d "$_tempdir/lib/modules/${_kernver}" ]]; then
     mv "$_tempdir/lib/modules/${_kernver}" "${srcdir}/${_kernver}"
   else
     error "Kernel modules directory not found at $_tempdir/lib/modules/${_kernver}. Please verify _kernver and deb contents."
+    exit 1
+  fi
+  if [[ -d "$_tempdir/lib/firmware/" ]]; then
+    mv "$_tempdir/lib/firmware/" "${srcdir}/firmware"
+  else
+    error "Kernel firmware directory not found at $_tempdir/lib/firmware/. Please verify _kernver and deb contents."
+    exit 1
+  fi
+  if [[ -d "$_tempdir/opt/" ]]; then
+    mv "$_tempdir/opt/" "${srcdir}/opt"
+  else
+    error "Kernel opt directory not found at $_tempdir/opt/. Please verify _kernver and deb contents."
+    exit 1
+  fi
+  if [[ -d "$_tempdir/usr/" ]]; then
+    mv "$_tempdir/usr/" "${srcdir}/usr"
+  else
+    error "Kernel usr directory not found at $_tempdir/usr/. Please verify _kernver and deb contents."
     exit 1
   fi
   touch "${srcdir}/${_kernver}/modules.builtin.modinfo"
@@ -71,6 +87,11 @@ package() {
   install -m644 "${srcdir}/tegra210-p3448-0000-p3449-0000-b00.dtb" "${pkgdir}/boot/dtbs/${_kernver}/tegra210-p3448-0000-p3449-0000-b00.dtb"
   install -d "${pkgdir}/usr/lib/modules/"
   cp -a "${srcdir}/${_kernver}" "${pkgdir}/usr/lib/modules/"
-  install -Dm644 "${srcdir}/tegra21x_xusb_firmware" "${pkgdir}/usr/lib/firmware/tegra21x_xusb_firmware"
+  install -d "${pkgdir}/usr/lib/firmware/"
+  install -Dm644 "${srcdir}/firmware/tegra21x_xusb_firmware" "${pkgdir}/usr/lib/firmware/tegra21x_xusb_firmware"
   install -Dm644 "${srcdir}/tegra-xusb.mkinitcpio.hook" "${pkgdir}/usr/lib/initcpio/install/tegra-xusb"
+  install -d "${pkgdir}/opt/"
+  cp -a "${srcdir}"/opt/* "${pkgdir}/opt/"
+  install -d "${pkgdir}/usr/share/"
+  cp -a "${srcdir}"/usr/share/* "${pkgdir}/usr/share/"
 }
