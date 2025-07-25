@@ -1,5 +1,6 @@
 # jetson-nano-archlinux-packages
 PKGBUILD files for Jetson Nano
+
 in packages bruch there tars witch you can manualy install
 if server/keys/isk what else dont work
 
