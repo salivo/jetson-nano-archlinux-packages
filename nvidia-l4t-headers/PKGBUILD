@@ -1,0 +1,35 @@
+# Maintainer: Andrii Salivon <andrijsalivon@plajta.eu>
+pkgname=linux-aarch64-nvidia-l4t-headers
+pkgver=32.7.6
+_kernver="4.9.337-tegra"
+pkgrel=1
+pkgdesc="Linux headers for Jetson Nano"
+arch=('aarch64')
+url="https://repo.download.nvidia.com/jetson"
+license=('unknown')
+
+provides=("${pkgname}")
+
+sha256sums=('2bbd3c2629cb049928ce5afe829116aec282a08ecb3e8f7cd83823bac62c1673')
+
+source=("https://repo.download.nvidia.com/jetson/t210/pool/main/n/nvidia-l4t-kernel-headers/nvidia-l4t-kernel-headers_4.9.337-tegra-32.7.6-20241104234540_arm64.deb")
+
+prepare() {
+  cd "$srcdir"
+  for deb in "${srcdir}"/*.deb; do
+    ar x "$deb"
+    tar xf data.tar.*
+    rm data.tar.* control.tar.* debian-binary
+  done
+}
+
+package() {
+  install -d "${pkgdir}/usr/lib/modules/${_kernver}"
+  ln -s "/usr/src/linux-headers-${_kernver}_aarch64/kernel-4.9" "${pkgdir}/usr/lib/modules/${_kernver}/build"
+
+  install -d "${pkgdir}"/usr/src/linux-headers-"${_kernver}"_aarch64/
+  cp -a "${srcdir}"/usr/src/linux-headers-"${_kernver}"-ubuntu18.04_aarch64/* "${pkgdir}"/usr/src/linux-headers-"${_kernver}"_aarch64/
+
+  install -d "${pkgdir}/usr/share/doc/"
+  cp -a "${srcdir}"/usr/share/doc/* "${pkgdir}/usr/share/doc/"
+}

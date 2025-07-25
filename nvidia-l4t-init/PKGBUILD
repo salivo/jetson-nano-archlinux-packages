@@ -23,6 +23,10 @@ prepare() {
     rm data.tar.* control.tar.* debian-binary
   done
   rm -rf etc/xdg/ etc/lightdm/ etc/systemd/sleep.conf # some auto-starts bloat
+  rm -rf etc/systemd/system/multi-user.target.wants/nvgetty.service
+  rm -rf etc/systemd/system/nvgetty.service
+  rm -rf etc/systemd/nvgetty.sh
+  rm -rf etc/systemd/system/getty.target.wants
 }
 
 package() {

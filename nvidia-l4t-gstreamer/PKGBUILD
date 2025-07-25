@@ -1,0 +1,35 @@
+# Maintainer: Andrii Salivon <andrijsalivon@plajta.eu>
+pkgname=nvidia-l4t-gstreamer
+pkgver=32.7.6
+pkgrel=1
+pkgdesc="GStreamer support for Jetson Nano"
+arch=('aarch64')
+url="https://repo.download.nvidia.com/jetson"
+license=('unknown')
+
+provides=("${pkgname}")
+
+sha256sums=('9608bace9efa0a3cb29c19500a917ff3f0f0fce5451dee3fc9f6bc01d47b41d2')
+
+source=("https://repo.download.nvidia.com/jetson/t210/pool/main/n/nvidia-l4t-gstreamer/nvidia-l4t-gstreamer_32.7.6-20241104234540_arm64.deb")
+
+prepare() {
+  cd "$srcdir"
+  for deb in "${srcdir}"/*.deb; do
+    ar x "$deb"
+    tar xf data.tar.*
+    rm data.tar.* control.tar.* debian-binary
+  done
+  rm usr/bin/gst-install
+}
+
+package() {
+  install -d "${pkgdir}/usr/lib"
+  cp -a "${srcdir}"/usr/lib/aarch64-linux-gnu/* "${pkgdir}"/usr/lib/
+
+  install -d "${pkgdir}/usr/share/doc/"
+  cp -a "${srcdir}"/usr/share/doc/* "${pkgdir}/usr/share/doc/"
+
+  install -d "${pkgdir}/usr/bin/"
+  cp -a "${srcdir}"/usr/bin/* "${pkgdir}/usr/bin/"
+}

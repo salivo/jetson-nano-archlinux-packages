@@ -1,0 +1,33 @@
+# Maintainer: Andrii Salivon <andrijsalivon@plajta.eu>
+pkgname=nvidia-l4t-multimedia
+pkgver=32.7.6
+pkgrel=1
+pkgdesc="NVIDIA multimedia support for Jetson Nano"
+arch=('aarch64')
+url="https://repo.download.nvidia.com/jetson"
+license=('unknown')
+
+provides=("${pkgname}")
+
+sha256sums=('e85b22ac1988e7e8926258efd7a54b16fa4fcdbb15810b73dc817570524f0d7b'
+            'e15b36238e2ff67fa615fdbb599203439a481d2ddf95409076d7815303b9c1ce')
+
+source=("https://repo.download.nvidia.com/jetson/t210/pool/main/n/nvidia-l4t-multimedia/nvidia-l4t-multimedia_32.7.6-20241104234540_arm64.deb"
+        "https://repo.download.nvidia.com/jetson/t210/pool/main/n/nvidia-l4t-multimedia-utils/nvidia-l4t-multimedia-utils_32.7.6-20241104234540_arm64.deb")
+
+prepare() {
+  cd "$srcdir"
+  for deb in "${srcdir}"/*.deb; do
+    ar x "$deb"
+    tar xf data.tar.*
+    rm data.tar.* control.tar.* debian-binary
+  done
+}
+
+package() {
+  install -d "${pkgdir}/usr/lib"
+  cp -a "${srcdir}"/usr/lib/aarch64-linux-gnu/* "${pkgdir}"/usr/lib/
+
+  install -d "${pkgdir}/usr/share/doc/"
+  cp -a "${srcdir}"/usr/share/doc/* "${pkgdir}/usr/share/doc/"
+}

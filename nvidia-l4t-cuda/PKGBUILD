@@ -1,0 +1,31 @@
+# Maintainer: Andrii Salivon <andrijsalivon@plajta.eu>
+pkgname=nvidia-l4t-cuda
+pkgver=32.7.6
+pkgrel=1
+pkgdesc="CUDA for Jetson Nano"
+arch=('aarch64')
+url="https://repo.download.nvidia.com/jetson"
+license=('unknown')
+
+provides=("${pkgname}")
+
+sha256sums=('0042650294496d632f5d7695a23632411ec3c1d3b2fdd664181338031bb45f86')
+
+source=("https://repo.download.nvidia.com/jetson/t210/pool/main/n/nvidia-l4t-cuda/nvidia-l4t-cuda_32.7.6-20241104234540_arm64.deb")
+
+prepare() {
+  cd "$srcdir"
+  for deb in "${srcdir}"/*.deb; do
+    ar x "$deb"
+    tar xf data.tar.*
+    rm data.tar.* control.tar.* debian-binary
+  done
+}
+
+package() {
+  install -d "${pkgdir}/usr/lib"
+  cp -a "${srcdir}"/usr/lib/aarch64-linux-gnu/* "${pkgdir}"/usr/lib/
+
+  install -d "${pkgdir}/usr/share/doc/"
+  cp -a "${srcdir}"/usr/share/doc/* "${pkgdir}/usr/share/doc/"
+}
